@@ -59,3 +59,5 @@ class Session(db.Model):
         """Initializes the session for a user"""
         self.id = UUID(bytes = OpenSSL.rand.bytes(16)).hex
         self.user_id = user_id
+        
+    

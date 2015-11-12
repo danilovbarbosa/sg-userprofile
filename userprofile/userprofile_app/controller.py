@@ -29,7 +29,7 @@ def create_user(username, password):
     #Check if username already exists
     if ( (username is None) or (username=="") or (password is None) or (password=="") ):
         raise ParseError('Invalid parameters')
-    if db.session.query(User).filter_by(username = username).first() is not None:
+    if User.query.filter_by(username = username).first() is not None:
         raise UsernameExistsException('Client exists')
     
     new_user = User(username, password)
@@ -46,15 +46,16 @@ def create_user(username, password):
     
 def get_user(username):
     """Auxiliary function for the view, to retrieve a user object from a username."""
-    user = db.session.query(User).filter_by(username = username).one()
+    user = User.query.filter_by(username = username).one()
+    #user = db.session.query(User).filter_by(username = username).one()
     return user
 
 def get_user_from_sessionid(sessionid):
     """Auxiliary function for the view, to retrieve a user object from a userid."""
     try: 
-        gamingsession = db.session.query(Session).filter_by(id = sessionid).one()
+        gamingsession = Session.query.get(sessionid)
         try:
-            user = db.session.query(User).filter_by(id = gamingsession.user_id).one()
+            user = User.query.get(gamingsession.user_id)
             return user
         except NoResultFound:
             LOG.warning("Username was deleted while sessionid was still active? Remove sessionid.")
@@ -67,7 +68,7 @@ def get_user_from_sessionid(sessionid):
 def user_authenticate(username, password):
     """Tries to authenticate a user by checking a username/password pair."""
     try:
-        user = db.session.query(User).filter_by(username = username).one()
+        user = User.query.filter_by(username = username).one()
         if (not user.verify_password(password)):
             raise AuthenticationFailed("Wrong credentials.")
         else:
@@ -86,7 +87,8 @@ def is_authorized(user, action):
 
 def get_session(sessionid):
     """Auxiliary function for the view, to retrieve a session object from a sessionid."""
-    session = db.session.query(Session).filter_by(id = sessionid).one()
+    session = Session.query(sessionid)
+    #session = db.session.query(Session).filter_by(id = sessionid).one()
     return session
 
 
