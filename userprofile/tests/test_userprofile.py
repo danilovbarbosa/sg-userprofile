@@ -173,6 +173,17 @@ class TestUserProfile(unittest.TestCase):
         self.assertEquals(response.status, "200 OK")
         self.assertEquals(json_results["message"], "Success.")
         
+    def test_request_session_info(self):
+        sessionid=self.mysessionid
+        response = self.client.get('/userprofile/api/v1.0/session/%s' % sessionid, 
+                                 follow_redirects=True)
+        try:
+            json_results = json.loads(response.get_data().decode())
+            LOG.debug(json_results)
+        except JSONDecodeError:
+            self.fail("Not a JSON response, something went wrong.")
+        self.assertEquals(response.status, "200 OK")
+        self.assertEquals(json_results["message"], "Success.")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

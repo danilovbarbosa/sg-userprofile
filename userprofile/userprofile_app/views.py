@@ -97,4 +97,14 @@ def get_userinfo():
             return jsonify({'message': e.value, "result":""}), status.HTTP_200_OK
         except AuthenticationFailed:
             return jsonify({'message': "Invalid credentials."}), status.HTTP_401_UNAUTHORIZED  
+        
+@userprofile.route('/session/<sessionid>')
+def get_sessioninfo(sessionid):
+    try:
+        session = controller.get_session(sessionid)
+        return jsonify({'message':"Success.", 'result': session.as_dict()}), status.HTTP_200_OK
+    except SessionidNotFoundException as e:
+        return jsonify({'message': e.value, "result":""}), status.HTTP_200_OK
+    except AuthenticationFailed:
+        return jsonify({'message': "Invalid credentials."}), status.HTTP_401_UNAUTHORIZED  
     

@@ -87,7 +87,7 @@ def is_authorized(user, action):
 
 def get_session(sessionid):
     """Auxiliary function for the view, to retrieve a session object from a sessionid."""
-    session = Session.query(sessionid)
+    session = Session.query.get(sessionid)
     #session = db.session.query(Session).filter_by(id = sessionid).one()
     return session
 
