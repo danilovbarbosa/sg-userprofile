@@ -8,7 +8,7 @@ of the application when called by the views.
 # Exceptions and errors
 from flask.ext.api.exceptions import AuthenticationFailed, ParseError
 from sqlalchemy.orm.exc import NoResultFound 
-from .errors import UsernameExistsException
+from .errors import *
 #from itsdangerous import BadSignature, SignatureExpired
 #from werkzeug.exceptions import Unauthorized
 #from flask_api.exceptions import NotFound
@@ -43,5 +43,78 @@ def create_user(username, password):
         db.session.flush() # for resetting non-commited .add()
         LOG.error(e, exc_info=True)
         raise e      
-            
+    
+def get_user(username):
+    """Auxiliary function for the view, to retrieve a user object from a username."""
+    user = db.session.query(User).filter_by(username = username).one()
+    return user
 
+def get_user_from_sessionid(sessionid):
+    """Auxiliary function for the view, to retrieve a user object from a userid."""
+    try: 
+        gamingsession = db.session.query(Session).filter_by(id = sessionid).one()
+        try:
+            user = db.session.query(User).filter_by(id = gamingsession.user_id).one()
+            return user
+        except NoResultFound:
+            LOG.warning("Username was deleted while sessionid was still active? Remove sessionid.")
+            expire_session(sessionid)
+            raise UserNotFoundException("Username associated with this record is not in database.")
+    except NoResultFound:
+        raise SessionidNotFoundException("Sessionid not in database.")
+    
+            
+def user_authenticate(username, password):
+    """Tries to authenticate a user by checking a username/password pair."""
+    try:
+        user = db.session.query(User).filter_by(username = username).one()
+        if (not user.verify_password(password)):
+            raise AuthenticationFailed("Wrong credentials.")
+        else:
+            return user
+    except NoResultFound:
+        raise AuthenticationFailed("Username does not exist.")
+    
+def is_authorized(user, action):
+    """Verifies if this user is allowed to request this action.
+    TODO: Implement this or use ACL."""
+    return True
+
+###################################################
+#    Session functions
+###################################################
+
+def get_session(sessionid):
+    """Auxiliary function for the view, to retrieve a session object from a sessionid."""
+    session = db.session.query(Session).filter_by(id = sessionid).one()
+    return session
+
+
+def new_session(username):
+    """Takes a username and returns a new session id."""
+    #First, get the userid from the username
+    user = get_user(username)
+    session = Session(user.id)
+    try:
+        db.session.add(session)
+        db.session.commit()
+        return session.id
+    except Exception as e:
+        LOG.warning(e)
+        db.session.rollback()
+        db.session.flush() # for resetting non-commited .add()
+        LOG.error(e, exc_info=True)
+        raise e    
+   
+def expire_session(sessionid):
+    session = get_session(sessionid)
+    try:
+        db.session.delete(session)
+        db.session.commit()
+    except Exception as e:
+        LOG.warning(e)
+        db.session.rollback()
+        db.session.flush() # for resetting non-commited .delete()
+        LOG.error(e, exc_info=True)
+        raise e
+    

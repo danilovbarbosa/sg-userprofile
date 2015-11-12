@@ -26,6 +26,24 @@ class User(db.Model):
         self.username = username
         self.password_hash = pwd_context.encrypt(password)
         #self.token = None
+        
+    def as_dict(self):
+        """Returns a representation of the object as dictionary."""
+        obj_d = {
+            'id': self.id,
+            'username': self.username,
+        }
+        return obj_d
+    
+    def verify_password(self, password):
+        """Checks if the username's password is valid. Returns boolean."""
+        #LOG.debug("Checking apikey... clientid %s, apikey %s" % (self.clientid, apikey))
+        verified = pwd_context.verify(password, self.password_hash)
+        if verified:
+            #g.clientid = self.clientid
+            return True
+        else:
+            return False
 
     
 class Session(db.Model):

@@ -6,6 +6,7 @@ import unittest
 #import datetime
 import json
 import sys
+from json.decoder import JSONDecodeError
 #import base64
 #from werkzeug.wrappers import Response
 sys.path.append("..") 
@@ -38,6 +39,14 @@ class TestUserProfile(unittest.TestCase):
         
         new_user = User("admin", "adminpassword")
         db.session.add(new_user)
+        
+        new_normal_user = User("normaluser", "password")
+        db.session.add(new_normal_user)
+        
+        new_session = Session(new_normal_user.id)
+        self.mysessionid = new_session.id
+        db.session.add(new_session)
+        
         try:
             db.session.commit()
             return True
@@ -56,10 +65,17 @@ class TestUserProfile(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
+        
+        
+        
+        
+###################################################
+#    User-related tests
+###################################################
 
 
     def test_add_user(self):
-        requestdata = json.dumps(dict(username="normaluser", password="123456"))
+        requestdata = json.dumps(dict(username="normaluser2", password="123456"))
         response = self.client.post('/userprofile/api/v1.0/user', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
@@ -67,7 +83,7 @@ class TestUserProfile(unittest.TestCase):
         self.assertEquals(response.status, "201 CREATED")
         
     def test_add_user_bad_request(self):
-        requestdata = json.dumps(dict(username="normaluser"))
+        requestdata = json.dumps(dict(username="normaluser2"))
         response = self.client.post('/userprofile/api/v1.0/user', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
@@ -90,7 +106,73 @@ class TestUserProfile(unittest.TestCase):
                                  follow_redirects=True)
         self.assertEquals(response.status, "409 CONFLICT")
         
+    
+    
+###################################################
+#    Session-related tests
+###################################################
+    
+    def test_request_sessionid_good_credentials(self):
+        requestdata = json.dumps(dict(username="normaluser", password="password"))
+        response = self.client.post('/userprofile/api/v1.0/session', 
+                                 data=requestdata, 
+                                 content_type = 'application/json', 
+                                 follow_redirects=True)
+        json_results = json.loads(response.get_data().decode())
+        self.assertEquals(response.status, "200 OK")
+        LOG.debug("Returned sessionid: %s" % json_results["sessionid"])
+        
+    def test_request_sessionid_bad_credentials(self):
+        requestdata = json.dumps(dict(username="wrongnormaluser", password="wrongpassword"))
+        response = self.client.post('/userprofile/api/v1.0/session', 
+                                 data=requestdata, 
+                                 content_type = 'application/json', 
+                                 follow_redirects=True)
+        #json_results = json.loads(response.get_data().decode())
+        self.assertEquals(response.status, "401 UNAUTHORIZED")
+        
+    def test_request_sessionid_bad_password(self):
+        requestdata = json.dumps(dict(username="normaluser", password="wrongpassword"))
+        response = self.client.post('/userprofile/api/v1.0/session', 
+                                 data=requestdata, 
+                                 content_type = 'application/json', 
+                                 follow_redirects=True)
+        #json_results = json.loads(response.get_data().decode())
+        self.assertEquals(response.status, "401 UNAUTHORIZED")
 
+    def test_request_sessionid_bad_request(self):
+        requestdata = json.dumps(dict(username="normaluser"))
+        response = self.client.post('/userprofile/api/v1.0/session', 
+                                 data=requestdata, 
+                                 content_type = 'application/json', 
+                                 follow_redirects=True)
+        #json_results = json.loads(response.get_data().decode())
+        self.assertEquals(response.status, "400 BAD REQUEST")
+        
+    def test_request_sessionid_wrong_method(self):
+        response = self.client.get('/userprofile/api/v1.0/session', 
+                                 content_type = 'application/json', 
+                                 follow_redirects=True)
+        self.assertEquals(response.status, "405 METHOD NOT ALLOWED")
+        
+        
+###################################################
+#    Get info from session - tests
+###################################################
+
+    def test_request_user_info_from_sessionid(self):
+        requestdata = json.dumps(dict(sessionid=self.mysessionid))
+        response = self.client.post('/userprofile/api/v1.0/userinfo', 
+                                 data=requestdata, 
+                                 content_type = 'application/json', 
+                                 follow_redirects=True)
+        try:
+            json_results = json.loads(response.get_data().decode())
+        except JSONDecodeError:
+            self.fail("Not a JSON response, something went wrong.")
+        self.assertEquals(response.status, "200 OK")
+        self.assertEquals(json_results["message"], "Success.")
+        
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
