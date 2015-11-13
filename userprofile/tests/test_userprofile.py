@@ -6,7 +6,7 @@ import unittest
 #import datetime
 import json
 import sys
-from json.decoder import JSONDecodeError
+#from json.decoder import JSONDecodeError
 #import base64
 #from werkzeug.wrappers import Response
 sys.path.append("..") 
@@ -25,8 +25,8 @@ from userprofile_app.models import User,Session
 
 class TestUserProfile(unittest.TestCase):
 
-
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.app = create_app(testing=True)
         self.app_context = self.app.app_context()
         self.app_context.push()
@@ -43,24 +43,24 @@ class TestUserProfile(unittest.TestCase):
         new_normal_user = User("normaluser", "password")
         db.session.add(new_normal_user)
         
+        try:
+            db.session.commit()
+        except Exception as e:
+            LOG.error(e, exc_info=True)
+        
         new_session = Session(new_normal_user.id)
         self.mysessionid = new_session.id
         db.session.add(new_session)
         
         try:
             db.session.commit()
-            return True
         except Exception as e:
-            LOG.warning(e)
-            db.session.rollback()
-            db.session.flush() # for resetting non-commited .add()
             LOG.error(e, exc_info=True)
-            raise e 
         
         
 
-
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(self):
         LOG.info("======================Finished tests====================")
         db.session.remove()
         db.drop_all()
@@ -168,7 +168,7 @@ class TestUserProfile(unittest.TestCase):
                                  follow_redirects=True)
         try:
             json_results = json.loads(response.get_data().decode())
-        except JSONDecodeError:
+        except ValueError:
             self.fail("Not a JSON response, something went wrong.")
         self.assertEquals(response.status, "200 OK")
         self.assertEquals(json_results["message"], "Success.")
@@ -180,7 +180,7 @@ class TestUserProfile(unittest.TestCase):
         try:
             json_results = json.loads(response.get_data().decode())
             LOG.debug(json_results)
-        except JSONDecodeError:
+        except ValueError:
             self.fail("Not a JSON response, something went wrong.")
         self.assertEquals(response.status, "200 OK")
         self.assertEquals(json_results["message"], "Success.")

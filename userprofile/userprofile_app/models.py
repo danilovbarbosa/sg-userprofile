@@ -3,7 +3,7 @@ Models that extend the Model class provided by
 Flask's SQLAlchemy extension (flask.ext.sqlalchemy).
 '''
 
-from flask import current_app
+#from flask import current_app
 from .extensions import db
 
 import datetime
@@ -18,7 +18,7 @@ class User(db.Model):
     """
     
     __tablename__ = "user"    
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String, unique=True)
     password_hash = db.Column(db.String)
     
@@ -54,8 +54,8 @@ class Session(db.Model):
     """
     
     __tablename__ = "session"    
-    id = db.Column(db.String, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    id = db.Column(db.String(36), primary_key=True)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'))
     timestamp = db.Column(db.DateTime(True))
     
     def __init__(self, user_id):
