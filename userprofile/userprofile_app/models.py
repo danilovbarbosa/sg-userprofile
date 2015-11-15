@@ -19,8 +19,8 @@ class User(db.Model):
     
     __tablename__ = "user"    
     id = db.Column(db.String(36), primary_key=True)
-    username = db.Column(db.String, unique=True)
-    password_hash = db.Column(db.String)
+    username = db.Column(db.String(255), unique=True)
+    password_hash = db.Column(db.String(255))
     
     def __init__(self, username, password):
         """Initialize client class with the data provided, and encrypting password."""
