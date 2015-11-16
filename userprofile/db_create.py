@@ -5,7 +5,7 @@ Created on 15 Oct 2015
 '''
 from migrate.versioning import api
 from config import SQLALCHEMY_DATABASE_URI
-from config import SQLALCHEMY_MIGRATE_REPO
+#from config import SQLALCHEMY_MIGRATE_REPO
 from userprofile_app import db, create_app
 import os.path
 
