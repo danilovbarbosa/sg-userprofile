@@ -48,7 +48,7 @@ class TestUserProfile(unittest.TestCase):
         except Exception as e:
             LOG.error(e, exc_info=True)
         
-        new_session = Session(new_normal_user.id)
+        new_session = Session(new_normal_user)
         self.mysessionid = new_session.id
         db.session.add(new_session)
         
@@ -76,7 +76,7 @@ class TestUserProfile(unittest.TestCase):
 
     def test_add_user(self):
         requestdata = json.dumps(dict(username="normaluser2", password="123456"))
-        response = self.client.post('/userprofile/api/v1.0/user', 
+        response = self.client.post('/userprofile/api/v1.0/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -84,7 +84,7 @@ class TestUserProfile(unittest.TestCase):
         
     def test_add_user_bad_request(self):
         requestdata = json.dumps(dict(username="normaluser2"))
-        response = self.client.post('/userprofile/api/v1.0/user', 
+        response = self.client.post('/userprofile/api/v1.0/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -92,7 +92,7 @@ class TestUserProfile(unittest.TestCase):
     
     def test_add_user_empty_values(self):
         requestdata = json.dumps(dict(username="", password=""))
-        response = self.client.post('/userprofile/api/v1.0/user', 
+        response = self.client.post('/userprofile/api/v1.0/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -100,7 +100,7 @@ class TestUserProfile(unittest.TestCase):
     
     def test_add_repeated_user(self):
         requestdata = json.dumps(dict(username="admin", password="123456"))
-        response = self.client.post('/userprofile/api/v1.0/user', 
+        response = self.client.post('/userprofile/api/v1.0/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -114,7 +114,7 @@ class TestUserProfile(unittest.TestCase):
     
     def test_request_sessionid_good_credentials(self):
         requestdata = json.dumps(dict(username="normaluser", password="password"))
-        response = self.client.post('/userprofile/api/v1.0/session', 
+        response = self.client.post('/userprofile/api/v1.0/sessions', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -124,7 +124,7 @@ class TestUserProfile(unittest.TestCase):
         
     def test_request_sessionid_bad_credentials(self):
         requestdata = json.dumps(dict(username="wrongnormaluser", password="wrongpassword"))
-        response = self.client.post('/userprofile/api/v1.0/session', 
+        response = self.client.post('/userprofile/api/v1.0/sessions', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -133,7 +133,7 @@ class TestUserProfile(unittest.TestCase):
         
     def test_request_sessionid_bad_password(self):
         requestdata = json.dumps(dict(username="normaluser", password="wrongpassword"))
-        response = self.client.post('/userprofile/api/v1.0/session', 
+        response = self.client.post('/userprofile/api/v1.0/sessions', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -142,7 +142,7 @@ class TestUserProfile(unittest.TestCase):
 
     def test_request_sessionid_bad_request(self):
         requestdata = json.dumps(dict(username="normaluser"))
-        response = self.client.post('/userprofile/api/v1.0/session', 
+        response = self.client.post('/userprofile/api/v1.0/sessions', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -150,7 +150,7 @@ class TestUserProfile(unittest.TestCase):
         self.assertEquals(response.status, "400 BAD REQUEST")
         
     def test_request_sessionid_wrong_method(self):
-        response = self.client.get('/userprofile/api/v1.0/session', 
+        response = self.client.get('/userprofile/api/v1.0/sessions', 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
         self.assertEquals(response.status, "405 METHOD NOT ALLOWED")
@@ -161,29 +161,17 @@ class TestUserProfile(unittest.TestCase):
 ###################################################
 
     def test_request_user_info_from_sessionid(self):
-        requestdata = json.dumps(dict(sessionid=self.mysessionid))
-        response = self.client.post('/userprofile/api/v1.0/userinfo', 
-                                 data=requestdata, 
-                                 content_type = 'application/json', 
+        #requestdata = json.dumps(dict(sessionid=self.mysessionid))
+        response = self.client.get('/userprofile/api/v1.0/sessions/%s' % self.mysessionid, 
+                                 #data=requestdata, 
+                                 #content_type = 'application/json', 
                                  follow_redirects=True)
         try:
             json_results = json.loads(response.get_data().decode())
         except ValueError:
             self.fail("Not a JSON response, something went wrong.")
         self.assertEquals(response.status, "200 OK")
-        self.assertEquals(json_results["message"], "Success.")
         
-    def test_request_session_info(self):
-        sessionid=self.mysessionid
-        response = self.client.get('/userprofile/api/v1.0/session/%s' % sessionid, 
-                                 follow_redirects=True)
-        try:
-            json_results = json.loads(response.get_data().decode())
-            LOG.debug(json_results)
-        except ValueError:
-            self.fail("Not a JSON response, something went wrong.")
-        self.assertEquals(response.status, "200 OK")
-        self.assertEquals(json_results["message"], "Success.")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

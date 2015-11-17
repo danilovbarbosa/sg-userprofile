@@ -33,7 +33,7 @@ userprofile = Blueprint('userprofile', __name__, url_prefix='/userprofile/api/v1
 # user management
 ######################################################
 
-@userprofile.route('/user', methods = ['POST'])
+@userprofile.route('/users', methods = ['POST'])
 def new_user():
     """Creates a new user with the data received from a request.    
     """
@@ -59,7 +59,7 @@ def new_user():
 # Session
 ######################################################
 
-@userprofile.route('/session', methods = ['POST'])
+@userprofile.route('/sessions', methods = ['POST'])
 def new_session():
     """ If the credentials are valid, create a new session id and returns its id.    
     """
@@ -77,34 +77,37 @@ def new_session():
                 new_sessionid = controller.new_session(username)
             return jsonify({'sessionid': new_sessionid}), status.HTTP_200_OK
         except AuthenticationFailed:
-            return jsonify({'message': "Invalid credentials."}), status.HTTP_401_UNAUTHORIZED  
+            return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
 
-@userprofile.route('/userinfo', methods = ['POST'])
-def get_userinfo():
+@userprofile.route('/sessions/<sessionid>')
+def get_sessioninfo(sessionid):
     """TODO: Implement some kind of authentication and permission system here to 
     restrict access to retrieving user information from a sessionid."""
-    required_fields = ["sessionid"]
-    if not request.json or not (set(required_fields).issubset(request.json)): 
-        return jsonify({'message': 'Invalid request. Please try again.'}), status.HTTP_400_BAD_REQUEST
+#     required_fields = ["sessionid"]
+#     if not request.json or not (set(required_fields).issubset(request.json)): 
+#         return jsonify({'message': 'Invalid request. Please try again.'}), status.HTTP_400_BAD_REQUEST
+#     else:
+    if not controller._is_uuid_valid(sessionid):
+        return jsonify({'errors': [{'userMessage':'Invalid request. Please try again.'}]}), status.HTTP_400_BAD_REQUEST
     else:
         try:
-            sessionid = request.json["sessionid"]
-            user = controller.get_user_from_sessionid(sessionid)
-            return jsonify({'message':"Success.", 'result': user.as_dict()}), status.HTTP_200_OK
+            session = controller.get_session(sessionid)   
+            
+            return jsonify(session.as_dict()), status.HTTP_200_OK
         except UserNotFoundException as e:
-            return jsonify({'message': e.value, "result":""}), status.HTTP_200_OK
+            return jsonify({'errors': [{'userMessage':'User not found.'}]}), status.HTTP_404_NOT_FOUND
         except SessionidNotFoundException as e:
-            return jsonify({'message': e.value, "result":""}), status.HTTP_200_OK
+            return jsonify({'errors': [{'userMessage':'SessionID not found.'}]}), status.HTTP_404_NOT_FOUND
         except AuthenticationFailed:
-            return jsonify({'message': "Invalid credentials."}), status.HTTP_401_UNAUTHORIZED  
+            return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
         
-@userprofile.route('/session/<sessionid>')
-def get_sessioninfo(sessionid):
-    try:
-        session = controller.get_session(sessionid)
-        return jsonify({'message':"Success.", 'result': session.as_dict()}), status.HTTP_200_OK
-    except SessionidNotFoundException as e:
-        return jsonify({'message': e.value, "result":""}), status.HTTP_200_OK
-    except AuthenticationFailed:
-        return jsonify({'message': "Invalid credentials."}), status.HTTP_401_UNAUTHORIZED  
+# @userprofile.route('/session/<sessionid>')
+# def get_sessioninfo(sessionid):
+#     try:
+#         session = controller.get_session(sessionid)
+#         return jsonify({'message':"Success.", 'result': session.as_dict()}), status.HTTP_200_OK
+#     except SessionidNotFoundException as e:
+#         return jsonify({'message': e.value, "result":""}), status.HTTP_200_OK
+#     except AuthenticationFailed:
+#         return jsonify({'message': "Invalid credentials."}), status.HTTP_401_UNAUTHORIZED  
     

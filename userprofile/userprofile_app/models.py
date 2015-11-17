@@ -15,12 +15,14 @@ from passlib.apps import custom_app_context as pwd_context
 class User(db.Model):
     """Model "users" table in the database. 
     It contains id, a username, and hashed password. 
+    The same user may have many sessions; a session can have only one user.
     """
     
     __tablename__ = "user"    
     id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String(255), unique=True)
     password_hash = db.Column(db.String(255))
+    sessions = db.relationship("Session", backref = db.backref('user', lazy="joined"), lazy = "dynamic")
     
     def __init__(self, username, password):
         """Initialize client class with the data provided, and encrypting password."""
@@ -31,9 +33,14 @@ class User(db.Model):
         
     def as_dict(self):
         """Returns a representation of the object as dictionary."""
+        sessions_list = []
+        for session in self.sessions:
+            sessions_list.append(session.as_dict())
+            
         obj_d = {
             'id': self.id,
             'username': self.username,
+            'sessions':sessions_list
         }
         return obj_d
     
@@ -50,25 +57,30 @@ class User(db.Model):
     
 class Session(db.Model):
     """Model "sessions" table in the database. 
-    It contains id, a username, and hashed password. 
+    The same user may have many sessions; a session can have only one user.
     """
     
     __tablename__ = "session"    
     id = db.Column(db.String(36), primary_key=True)
-    user_id = db.Column(db.String(36), db.ForeignKey('user.id'))
     timestamp = db.Column(db.DateTime(True))
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'))
+    #user = db.relationship("User", backref="session", lazy="join")
     
-    def __init__(self, user_id):
+    def __init__(self, user):
         """Initializes the session for a user"""
         self.id = UUID(bytes = OpenSSL.rand.bytes(16)).hex
-        self.user_id = user_id
         self.timestamp = datetime.datetime.utcnow()
+        self.user_id = user.id
         
     def as_dict(self):
         """Returns a representation of the object as dictionary."""
         obj_d = {
             'id': self.id,
             'timestamp': self.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'user': [{
+                      'id':self.user.id,
+                      'username':self.user.username
+                }],
         }
         return obj_d
     

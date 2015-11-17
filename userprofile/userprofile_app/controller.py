@@ -13,6 +13,10 @@ from .errors import *
 #from werkzeug.exceptions import Unauthorized
 #from flask_api.exceptions import NotFound
 
+from uuid import UUID
+
+
+
 # Models
 from userprofile_app.models import User, Session
 
@@ -47,22 +51,7 @@ def create_user(username, password):
 def get_user(username):
     """Auxiliary function for the view, to retrieve a user object from a username."""
     user = User.query.filter_by(username = username).one()
-    #user = db.session.query(User).filter_by(username = username).one()
     return user
-
-def get_user_from_sessionid(sessionid):
-    """Auxiliary function for the view, to retrieve a user object from a userid."""
-    try: 
-        gamingsession = Session.query.get(sessionid)
-        try:
-            user = User.query.get(gamingsession.user_id)
-            return user
-        except NoResultFound:
-            LOG.warning("Username was deleted while sessionid was still active? Remove sessionid.")
-            expire_session(sessionid)
-            raise UserNotFoundException("Username associated with this record is not in database.")
-    except NoResultFound:
-        raise SessionidNotFoundException("Sessionid not in database.")
     
             
 def user_authenticate(username, password):
@@ -88,15 +77,17 @@ def is_authorized(user, action):
 def get_session(sessionid):
     """Auxiliary function for the view, to retrieve a session object from a sessionid."""
     session = Session.query.get(sessionid)
-    #session = db.session.query(Session).filter_by(id = sessionid).one()
-    return session
+    if session:
+        return session
+    else:
+        raise SessionidNotFoundException
 
 
 def new_session(username):
     """Takes a username and returns a new session id."""
     #First, get the userid from the username
     user = get_user(username)
-    session = Session(user.id)
+    session = Session(user)
     try:
         db.session.add(session)
         db.session.commit()
@@ -119,4 +110,19 @@ def expire_session(sessionid):
         db.session.flush() # for resetting non-commited .delete()
         LOG.error(e, exc_info=True)
         raise e
+    
+def _is_uuid_valid(sessionid):
+    """
+    Validate that a UUID string is in
+    fact a valid uuid.
+    """
+
+    try:
+        val = UUID(sessionid)
+    except ValueError:
+        # If it's a value error, then the string 
+        # is not a valid hex code for a UUID.
+        return False
+
+    return val.hex == sessionid
     

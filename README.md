@@ -16,11 +16,11 @@ $ python userprofile/run.py
 
 Add at least one username to the database:
 
-$ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user", "password":"password"}' http://localhost:5002/userprofile/api/v1.0/user
+$ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user", "password":"password"}' http://localhost:5002/userprofile/api/v1.0/users
 
 Request a sessionid:
 
-$ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user","password":"password"}' http://localhost:5002/userprofile/api/v1.0/session
+$ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user","password":"password"}' http://localhost:5002/userprofile/api/v1.0/sessions
 
 See user data associated to a sessionid:
-$ curl -i -H "Content-Type: application/json" -X POST -d '{"sessionid":"YOURSESSIONID"}' http://localhost:5002/userprofile/api/v1.0/userinfo
+$ curl -i http://localhost:5002/userprofile/api/v1.0/sessions/YOURSESSIONID
