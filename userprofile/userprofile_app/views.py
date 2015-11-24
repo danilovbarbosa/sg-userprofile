@@ -30,6 +30,14 @@ from userprofile_app import controller
 userprofile = Blueprint('userprofile', __name__, url_prefix='/userprofile/api/v1.0')
 
 ######################################################
+# Handshake
+######################################################
+
+@userprofile.route('/version')
+def get_version():
+    return jsonify({'data': [{'version':'v1.0'}] }), status.HTTP_200_OK
+
+######################################################
 # user management
 ######################################################
 
