@@ -43,6 +43,9 @@ class TestUserProfile(unittest.TestCase):
         new_normal_user = User("normaluser", "password")
         db.session.add(new_normal_user)
         
+        new_normal_user2 = User("normaluser2", "password")
+        db.session.add(new_normal_user2)
+        
         try:
             db.session.commit()
         except Exception as e:
@@ -57,7 +60,9 @@ class TestUserProfile(unittest.TestCase):
         except Exception as e:
             LOG.error(e, exc_info=True)
         
-        
+        new_session_todelete = Session(new_normal_user2)
+        self.mysessionid_todelete = new_session_todelete.id
+        db.session.add(new_session_todelete)
 
     @classmethod
     def tearDownClass(self):
@@ -75,7 +80,7 @@ class TestUserProfile(unittest.TestCase):
 
 
     def test_add_user(self):
-        requestdata = json.dumps(dict(username="normaluser2", password="123456"))
+        requestdata = json.dumps(dict(username="normaluser3", password="123456"))
         response = self.client.post('/userprofile/api/v1.0/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
@@ -83,7 +88,7 @@ class TestUserProfile(unittest.TestCase):
         self.assertEquals(response.status, "201 CREATED")
         
     def test_add_user_bad_request(self):
-        requestdata = json.dumps(dict(username="normaluser2"))
+        requestdata = json.dumps(dict(username="normaluser3"))
         response = self.client.post('/userprofile/api/v1.0/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
@@ -155,6 +160,11 @@ class TestUserProfile(unittest.TestCase):
                                  follow_redirects=True)
         self.assertEquals(response.status, "405 METHOD NOT ALLOWED")
         
+    def test_delete_sessionid(self):
+        response = self.client.delete('/userprofile/api/v1.0/sessions/%s' % self.mysessionid_todelete, 
+                                 content_type = 'application/json', 
+                                 follow_redirects=True)
+        self.assertEquals(response.status, "200 OK")
         
 ###################################################
 #    Get info from session - tests
