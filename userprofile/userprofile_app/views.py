@@ -109,6 +109,25 @@ def get_sessioninfo(sessionid):
         except AuthenticationFailed:
             return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
         
+        
+@userprofile.route('/sessions/<sessionid>', methods = ['DELETE'])
+def delete_sessioninfo(sessionid):
+    """TODO: Implement some kind of authentication and permission system here to 
+    restrict access to deleting a sessionid."""
+    if not controller._is_uuid_valid(sessionid):
+        return jsonify({'errors': [{'userMessage':'Invalid request. Please try again.'}]}), status.HTTP_400_BAD_REQUEST
+    else:
+        try:
+            session = controller.delete_session(sessionid)   
+            
+            return jsonify(session.as_dict()), status.HTTP_200_OK
+        except UserNotFoundException as e:
+            return jsonify({'errors': [{'userMessage':'User not found.'}]}), status.HTTP_404_NOT_FOUND
+        except SessionidNotFoundException as e:
+            return jsonify({'errors': [{'userMessage':'SessionID not found.'}]}), status.HTTP_404_NOT_FOUND
+        except AuthenticationFailed:
+            return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
+        
 # @userprofile.route('/session/<sessionid>')
 # def get_sessioninfo(sessionid):
 #     try:

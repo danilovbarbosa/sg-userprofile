@@ -99,7 +99,7 @@ def new_session(username):
         LOG.error(e, exc_info=True)
         raise e    
    
-def expire_session(sessionid):
+def delete_session(sessionid):
     session = get_session(sessionid)
     try:
         db.session.delete(session)
