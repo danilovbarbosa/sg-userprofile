@@ -33,7 +33,7 @@ def create_user(username, password):
     #Check if username already exists
     if ( (username is None) or (username=="") or (password is None) or (password=="") ):
         raise ParseError('Invalid parameters')
-    if User.query.filter_by(username = username).first() is not None:
+    if User.query.filter_by(username = username).first() is not None:  # @UndefinedVariable
         raise UsernameExistsException('Client exists')
     
     new_user = User(username, password)
@@ -50,14 +50,14 @@ def create_user(username, password):
     
 def get_user(username):
     """Auxiliary function for the view, to retrieve a user object from a username."""
-    user = User.query.filter_by(username = username).one()
+    user = User.query.filter_by(username = username).one()  # @UndefinedVariable
     return user
     
             
 def user_authenticate(username, password):
     """Tries to authenticate a user by checking a username/password pair."""
     try:
-        user = User.query.filter_by(username = username).one()
+        user = User.query.filter_by(username = username).one()  # @UndefinedVariable
         if (not user.verify_password(password)):
             raise AuthenticationFailed("Wrong credentials.")
         else:
@@ -76,7 +76,7 @@ def is_authorized(user, action):
 
 def get_session(sessionid):
     """Auxiliary function for the view, to retrieve a session object from a sessionid."""
-    session = Session.query.get(sessionid)
+    session = Session.query.get(sessionid)  # @UndefinedVariable
     if session:
         return session
     else:

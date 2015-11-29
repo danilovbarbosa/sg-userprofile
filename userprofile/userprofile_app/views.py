@@ -11,7 +11,7 @@ from flask.ext.api import status
 
 #Exceptions and errors
 from flask.ext.api.exceptions import AuthenticationFailed, ParseError
-from sqlalchemy.orm.exc import NoResultFound
+#from sqlalchemy.orm.exc import NoResultFound
 from .errors import *
 
 #Python modules
@@ -102,9 +102,9 @@ def get_sessioninfo(sessionid):
             session = controller.get_session(sessionid)   
             
             return jsonify(session.as_dict()), status.HTTP_200_OK
-        except UserNotFoundException as e:
+        except UserNotFoundException:
             return jsonify({'errors': [{'userMessage':'User not found.'}]}), status.HTTP_404_NOT_FOUND
-        except SessionidNotFoundException as e:
+        except SessionidNotFoundException:
             return jsonify({'errors': [{'userMessage':'SessionID not found.'}]}), status.HTTP_404_NOT_FOUND
         except AuthenticationFailed:
             return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
@@ -118,12 +118,11 @@ def delete_sessioninfo(sessionid):
         return jsonify({'errors': [{'userMessage':'Invalid request. Please try again.'}]}), status.HTTP_400_BAD_REQUEST
     else:
         try:
-            session = controller.delete_session(sessionid)   
-            
-            return jsonify(session.as_dict()), status.HTTP_200_OK
-        except UserNotFoundException as e:
+            controller.delete_session(sessionid)            
+            return jsonify({'data': [{'userMessage':'Session deleted successfully.'}]}), status.HTTP_200_OK
+        except UserNotFoundException:
             return jsonify({'errors': [{'userMessage':'User not found.'}]}), status.HTTP_404_NOT_FOUND
-        except SessionidNotFoundException as e:
+        except SessionidNotFoundException:
             return jsonify({'errors': [{'userMessage':'SessionID not found.'}]}), status.HTTP_404_NOT_FOUND
         except AuthenticationFailed:
             return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
