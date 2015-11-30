@@ -74,13 +74,23 @@ def is_authorized(user, action):
 #    Session functions
 ###################################################
 
-def get_session(sessionid):
+def get_session(sessionid, search_inactives=False):
     """Auxiliary function for the view, to retrieve a session object from a sessionid."""
-    session = Session.query.get(sessionid)  # @UndefinedVariable
+    if (search_inactives==False):
+        try:
+            session = Session.query.filter_by(id=sessionid,active=True).one()  # @UndefinedVariable
+        except NoResultFound:
+            session = False
+    else:
+        try:
+            session = Session.query.filter_by(id=sessionid).one()  # @UndefinedVariable
+        except NoResultFound:
+            session = False
+        
     if session:
         return session
     else:
-        raise SessionidNotFoundException
+        raise SessionidNotFoundException("Session does not exist.")
 
 
 def new_session(username):
@@ -101,8 +111,10 @@ def new_session(username):
    
 def delete_session(sessionid):
     session = get_session(sessionid)
+    
     try:
-        db.session.delete(session)
+        #db.session.delete(session)
+        session.active = False
         db.session.commit()
     except Exception as e:
         LOG.warning(e)

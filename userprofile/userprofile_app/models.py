@@ -64,6 +64,7 @@ class Session(db.Model):
     id = db.Column(db.String(36), primary_key=True)
     timestamp = db.Column(db.DateTime(True))
     user_id = db.Column(db.String(36), db.ForeignKey('user.id'))
+    active = db.Column(db.Boolean)
     #user = db.relationship("User", backref="session", lazy="join")
     
     def __init__(self, user):
@@ -71,6 +72,7 @@ class Session(db.Model):
         self.id = UUID(bytes = OpenSSL.rand.bytes(16)).hex
         self.timestamp = datetime.datetime.utcnow()
         self.user_id = user.id
+        self.active = True
         
     def as_dict(self):
         """Returns a representation of the object as dictionary."""
@@ -79,7 +81,8 @@ class Session(db.Model):
             'timestamp': self.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
             'user': [{
                       'id':self.user.id,
-                      'username':self.user.username
+                      'username':self.user.username,
+                      'active':str(self.active)
                 }],
         }
         return obj_d

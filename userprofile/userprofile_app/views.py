@@ -24,7 +24,7 @@ from userprofile_app import controller
 
 
 #Extensions
-#from .extensions import LOG, db
+from .extensions import LOG
 
 #Userprofile blueprint
 userprofile = Blueprint('userprofile', __name__, url_prefix='/userprofile/api/v1.0')
@@ -98,16 +98,22 @@ def get_sessioninfo(sessionid):
     if not controller._is_uuid_valid(sessionid):
         return jsonify({'errors': [{'userMessage':'Invalid request. Please try again.'}]}), status.HTTP_400_BAD_REQUEST
     else:
+        session = {}
+        inactive = False
+        if ("inactive" in request.args):
+            if request.args["inactive"].lower() == "true":
+                inactive = True
         try:
-            session = controller.get_session(sessionid)   
-            
-            return jsonify(session.as_dict()), status.HTTP_200_OK
+            session = controller.get_session(sessionid, inactive)   
         except UserNotFoundException:
             return jsonify({'errors': [{'userMessage':'User not found.'}]}), status.HTTP_404_NOT_FOUND
         except SessionidNotFoundException:
             return jsonify({'errors': [{'userMessage':'SessionID not found.'}]}), status.HTTP_404_NOT_FOUND
         except AuthenticationFailed:
             return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
+            
+        return jsonify(session.as_dict()), status.HTTP_200_OK
+        
         
         
 @userprofile.route('/sessions/<sessionid>', methods = ['DELETE'])
