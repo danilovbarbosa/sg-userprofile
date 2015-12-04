@@ -1,0 +1,445 @@
+
+
+<!doctype html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>User Profile’s service documentation &mdash; userprofile 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="userprofile 0.1 documentation" href="#" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">userprofile 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">User Profile&#8217;s service documentation</a><ul>
+<li><a class="reference internal" href="#rest-api">REST API</a></li>
+<li><a class="reference internal" href="#components">Components</a><ul>
+<li><a class="reference internal" href="#module-userprofile_app">Gameevents App</a></li>
+<li><a class="reference internal" href="#module-userprofile_app.controller">Controller</a></li>
+<li><a class="reference internal" href="#module-userprofile_app.models">Models</a></li>
+<li><a class="reference internal" href="#module-userprofile_app.errors">Errors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="user-profile-s-service-documentation">
+<h1>User Profile&#8217;s service documentation<a class="headerlink" href="#user-profile-s-service-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="rest-api">
+<h2>REST API<a class="headerlink" href="#rest-api" title="Permalink to this headline">¶</a></h2>
+<dl class="post">
+<dt id="post--v1-sessions">
+<code class="descname">POST </code><code class="descname">/v1/sessions</code><a class="headerlink" href="#post--v1-sessions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new gaming session. Requires authentication by providing a valid username/password.</p>
+<p>TODO: Switch to token authentication</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>string</em>) &#8211; Username of the user who is using the session</li>
+<li><strong>password</strong> (<em>string</em>) &#8211; Password for authenticating</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Successful request</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Not JSON object or missing parameters</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2">401 Unauthorized</a> &#8211; Wrong credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--v1-version">
+<code class="descname">GET </code><code class="descname">/v1/version</code><a class="headerlink" href="#get--v1-version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current version of the API.</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--v1-users">
+<code class="descname">POST </code><code class="descname">/v1/users</code><a class="headerlink" href="#post--v1-users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new user with the data received from a request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>string</em>) &#8211; </li>
+<li><strong>password</strong> (<em>string</em>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Successful request</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Not JSON object or missing parameters</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2">401 Unauthorized</a> &#8211; Wrong credentials</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--v1-sessions-(sessionid)">
+<code class="descname">GET </code><code class="descname">/v1/sessions/</code><span class="sig-paren">(</span><em>sessionid</em><span class="sig-paren">)</span><a class="headerlink" href="#get--v1-sessions-(sessionid)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get information about the sessionid.</p>
+<p>TODO: Implement some kind of authentication and permission system here to 
+restrict access to retrieving user information from a sessionid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sessionid</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful request</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Not JSON object or missing parameters</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2">401 Unauthorized</a> &#8211; Wrong credentials</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Sessionid does not exist</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--v1-sessions-(sessionid)">
+<code class="descname">DELETE </code><code class="descname">/v1/sessions/</code><span class="sig-paren">(</span><em>sessionid</em><span class="sig-paren">)</span><a class="headerlink" href="#delete--v1-sessions-(sessionid)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks the session as inactive.</p>
+<p>TODO: Implement some kind of authentication and permission system here to 
+restrict access to deleting a sessionid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sessionid</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.5">204 No Content</a> &#8211; Deleted successfully</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Bad parameters (badly formed sessionid)</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2">401 Unauthorized</a> &#8211; Wrong credentials</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Sessionid does not exist</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="components">
+<h2>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-userprofile_app">
+<span id="gameevents-app"></span><h3>Gameevents App<a class="headerlink" href="#module-userprofile_app" title="Permalink to this headline">¶</a></h3>
+<p>Main module for starting the dashboard application service. Imports required 
+modules from Flask (including DB and auth modules), 
+and sets up logging.</p>
+</div>
+<div class="section" id="module-userprofile_app.controller">
+<span id="controller"></span><h3>Controller<a class="headerlink" href="#module-userprofile_app.controller" title="Permalink to this headline">¶</a></h3>
+<p>Controller of the application, which defines the behaviour
+of the application when called by the views.</p>
+<dl class="function">
+<dt id="userprofile_app.controller.create_user">
+<code class="descclassname">userprofile_app.controller.</code><code class="descname">create_user</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.controller.create_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new user with given username and password.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>username</strong> &#8211; </li>
+<li><strong>password</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="userprofile_app.controller.get_session">
+<code class="descclassname">userprofile_app.controller.</code><code class="descname">get_session</code><span class="sig-paren">(</span><em>sessionid</em>, <em>search_inactives=False</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.controller.get_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Auxiliary function for the view, to retrieve a session object from a sessionid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sessionid</strong> &#8211; </li>
+<li><strong>search_inactives</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="userprofile_app.controller.get_user">
+<code class="descclassname">userprofile_app.controller.</code><code class="descname">get_user</code><span class="sig-paren">(</span><em>username</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.controller.get_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Auxiliary function for the view, to retrieve a user object from a username.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>username</strong> &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="userprofile_app.controller.is_authorized">
+<code class="descclassname">userprofile_app.controller.</code><code class="descname">is_authorized</code><span class="sig-paren">(</span><em>user</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.controller.is_authorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies if this user is allowed to request this action.</p>
+<p>TODO: Implement this or use ACL.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user</strong> &#8211; </li>
+<li><strong>action</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="userprofile_app.controller.new_session">
+<code class="descclassname">userprofile_app.controller.</code><code class="descname">new_session</code><span class="sig-paren">(</span><em>username</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.controller.new_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a username and returns a new session id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>username</strong> &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="userprofile_app.controller.user_authenticate">
+<code class="descclassname">userprofile_app.controller.</code><code class="descname">user_authenticate</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.controller.user_authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tries to authenticate a user by checking a username/password pair.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>username</strong> &#8211; </li>
+<li><strong>password</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-userprofile_app.models">
+<span id="models"></span><h3>Models<a class="headerlink" href="#module-userprofile_app.models" title="Permalink to this headline">¶</a></h3>
+<p>Models that extend the Model class provided by 
+Flask&#8217;s SQLAlchemy extension (flask.ext.sqlalchemy).</p>
+<dl class="class">
+<dt id="userprofile_app.models.Session">
+<em class="property">class </em><code class="descclassname">userprofile_app.models.</code><code class="descname">Session</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.models.Session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model &#8220;sessions&#8221; table in the database. 
+The same user may have many sessions; a session can have only one user.</p>
+<dl class="method">
+<dt id="userprofile_app.models.Session.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.models.Session.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a representation of the object as dictionary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="userprofile_app.models.Session.as_hateoas">
+<code class="descname">as_hateoas</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.models.Session.as_hateoas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dict representation of the session that follows hateoas representation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="userprofile_app.models.User">
+<em class="property">class </em><code class="descclassname">userprofile_app.models.</code><code class="descname">User</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.models.User" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model &#8220;users&#8221; table in the database. 
+It contains id, a username, and hashed password. 
+The same user may have many sessions; a session can have only one user.</p>
+<dl class="method">
+<dt id="userprofile_app.models.User.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.models.User.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a representation of the object as dictionary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="userprofile_app.models.User.as_hateoas">
+<code class="descname">as_hateoas</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.models.User.as_hateoas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dict representation of the user that follows hateoas representation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="userprofile_app.models.User.verify_password">
+<code class="descname">verify_password</code><span class="sig-paren">(</span><em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.models.User.verify_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the username&#8217;s password is valid. Returns boolean.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>password</strong> &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-userprofile_app.errors">
+<span id="errors"></span><h3>Errors<a class="headerlink" href="#module-userprofile_app.errors" title="Permalink to this headline">¶</a></h3>
+<p>Creates a few custom exceptions used throughout the application.</p>
+<dl class="exception">
+<dt id="userprofile_app.errors.SessionidNotFoundException">
+<em class="property">exception </em><code class="descclassname">userprofile_app.errors.</code><code class="descname">SessionidNotFoundException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.errors.SessionidNotFoundException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Session ID not found in database.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="userprofile_app.errors.UserNotFoundException">
+<em class="property">exception </em><code class="descclassname">userprofile_app.errors.</code><code class="descname">UserNotFoundException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.errors.UserNotFoundException" title="Permalink to this definition">¶</a></dt>
+<dd><p>User not found in database.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="userprofile_app.errors.UsernameExistsException">
+<em class="property">exception </em><code class="descclassname">userprofile_app.errors.</code><code class="descname">UsernameExistsException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#userprofile_app.errors.UsernameExistsException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Username already exists in database.</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">userprofile 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Maira B. Carvalho.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
