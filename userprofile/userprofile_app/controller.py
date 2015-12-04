@@ -13,6 +13,8 @@ from .errors import *
 #from werkzeug.exceptions import Unauthorized
 #from flask_api.exceptions import NotFound
 
+import requests
+
 from uuid import UUID
 
 
@@ -173,4 +175,7 @@ def _is_uuid_valid(sessionid):
         return False
 
     return val.hex == sessionid
+    
+def request_auth():
+    requests.get('http://localhost:8000/XAPI/oauth2/authorize?response_type=code&client_id=userprofile&redirect_uri=http://localhost:5002/v1/version&scope=photos')
     

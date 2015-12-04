@@ -42,6 +42,18 @@ def get_version():
     return jsonify(version='v1'), status.HTTP_200_OK
 
 ######################################################
+# OAuth with LRS
+######################################################
+
+@userprofile.route('/request_auth')
+def request_auth():
+    '''
+    Requests authentication from LRS
+    '''
+    controller.request_auth()
+    return jsonify(version='v1'), status.HTTP_200_OK
+
+######################################################
 # user management
 ######################################################
 
