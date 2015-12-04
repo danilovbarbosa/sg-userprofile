@@ -81,7 +81,7 @@ class TestUserProfile(unittest.TestCase):
 
     def test_add_user(self):
         requestdata = json.dumps(dict(username="normaluser3", password="123456"))
-        response = self.client.post('/userprofile/api/v1.0/users', 
+        response = self.client.post('/v1/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -89,7 +89,7 @@ class TestUserProfile(unittest.TestCase):
         
     def test_add_user_bad_request(self):
         requestdata = json.dumps(dict(username="normaluser3"))
-        response = self.client.post('/userprofile/api/v1.0/users', 
+        response = self.client.post('/v1/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -97,7 +97,7 @@ class TestUserProfile(unittest.TestCase):
     
     def test_add_user_empty_values(self):
         requestdata = json.dumps(dict(username="", password=""))
-        response = self.client.post('/userprofile/api/v1.0/users', 
+        response = self.client.post('/v1/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -105,7 +105,7 @@ class TestUserProfile(unittest.TestCase):
     
     def test_add_repeated_user(self):
         requestdata = json.dumps(dict(username="admin", password="123456"))
-        response = self.client.post('/userprofile/api/v1.0/users', 
+        response = self.client.post('/v1/users', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -119,17 +119,16 @@ class TestUserProfile(unittest.TestCase):
     
     def test_request_sessionid_good_credentials(self):
         requestdata = json.dumps(dict(username="normaluser", password="password"))
-        response = self.client.post('/userprofile/api/v1.0/sessions', 
+        response = self.client.post('/v1/sessions', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
-        json_results = json.loads(response.get_data().decode())
-        self.assertEquals(response.status, "200 OK")
-        LOG.debug("Returned sessionid: %s" % json_results["sessionid"])
+        #json_results = json.loads(response.get_data().decode())
+        self.assertEquals(response.status, "201 CREATED")
         
     def test_request_sessionid_bad_credentials(self):
         requestdata = json.dumps(dict(username="wrongnormaluser", password="wrongpassword"))
-        response = self.client.post('/userprofile/api/v1.0/sessions', 
+        response = self.client.post('/v1/sessions', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -138,7 +137,7 @@ class TestUserProfile(unittest.TestCase):
         
     def test_request_sessionid_bad_password(self):
         requestdata = json.dumps(dict(username="normaluser", password="wrongpassword"))
-        response = self.client.post('/userprofile/api/v1.0/sessions', 
+        response = self.client.post('/v1/sessions', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -147,7 +146,7 @@ class TestUserProfile(unittest.TestCase):
 
     def test_request_sessionid_bad_request(self):
         requestdata = json.dumps(dict(username="normaluser"))
-        response = self.client.post('/userprofile/api/v1.0/sessions', 
+        response = self.client.post('/v1/sessions', 
                                  data=requestdata, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
@@ -155,16 +154,16 @@ class TestUserProfile(unittest.TestCase):
         self.assertEquals(response.status, "400 BAD REQUEST")
         
     def test_request_sessionid_wrong_method(self):
-        response = self.client.get('/userprofile/api/v1.0/sessions', 
+        response = self.client.get('/v1/sessions', 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
         self.assertEquals(response.status, "405 METHOD NOT ALLOWED")
         
     def test_delete_sessionid(self):
-        response = self.client.delete('/userprofile/api/v1.0/sessions/%s' % self.mysessionid_todelete, 
+        response = self.client.delete('/v1/sessions/%s' % self.mysessionid_todelete, 
                                  content_type = 'application/json', 
                                  follow_redirects=True)
-        self.assertEquals(response.status, "200 OK")
+        self.assertEquals(response.status, "204 NO CONTENT")
         
 ###################################################
 #    Get info from session - tests
@@ -172,7 +171,7 @@ class TestUserProfile(unittest.TestCase):
 
     def test_request_user_info_from_sessionid(self):
         #requestdata = json.dumps(dict(sessionid=self.mysessionid))
-        response = self.client.get('/userprofile/api/v1.0/sessions/%s' % self.mysessionid, 
+        response = self.client.get('/v1/sessions/%s' % self.mysessionid, 
                                  #data=requestdata, 
                                  #content_type = 'application/json', 
                                  follow_redirects=True)

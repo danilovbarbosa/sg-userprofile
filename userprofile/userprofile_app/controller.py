@@ -29,7 +29,13 @@ from .extensions import db, LOG
 ###################################################
 
 def create_user(username, password):
-    """Creates a new user with given username and password."""
+    '''
+    Creates a new user with given username and password.
+    
+    :param username:
+    :param password:
+    '''
+    
     #Check if username already exists
     if ( (username is None) or (username=="") or (password is None) or (password=="") ):
         raise ParseError('Invalid parameters')
@@ -40,7 +46,7 @@ def create_user(username, password):
     db.session.add(new_user)
     try:
         db.session.commit()
-        return True
+        return new_user
     except Exception as e:
         LOG.warning(e)
         db.session.rollback()
@@ -49,13 +55,24 @@ def create_user(username, password):
         raise e      
     
 def get_user(username):
-    """Auxiliary function for the view, to retrieve a user object from a username."""
+    '''
+    Auxiliary function for the view, to retrieve a user object from a username.
+    
+    :param username:
+    '''
+    
     user = User.query.filter_by(username = username).one()  # @UndefinedVariable
     return user
     
             
 def user_authenticate(username, password):
-    """Tries to authenticate a user by checking a username/password pair."""
+    '''
+    Tries to authenticate a user by checking a username/password pair.
+    
+    :param username:
+    :param password:
+    '''
+    
     try:
         user = User.query.filter_by(username = username).one()  # @UndefinedVariable
         if (not user.verify_password(password)):
@@ -66,8 +83,15 @@ def user_authenticate(username, password):
         raise AuthenticationFailed("Username does not exist.")
     
 def is_authorized(user, action):
-    """Verifies if this user is allowed to request this action.
-    TODO: Implement this or use ACL."""
+    '''
+    Verifies if this user is allowed to request this action.
+    
+    TODO: Implement this or use ACL.
+    
+    :param user:
+    :param action:
+    '''
+
     return True
 
 ###################################################
@@ -75,7 +99,13 @@ def is_authorized(user, action):
 ###################################################
 
 def get_session(sessionid, search_inactives=False):
-    """Auxiliary function for the view, to retrieve a session object from a sessionid."""
+    '''
+    Auxiliary function for the view, to retrieve a session object from a sessionid.
+    
+    :param sessionid:
+    :param search_inactives:
+    '''
+    
     if (search_inactives==False):
         try:
             session = Session.query.filter_by(id=sessionid,active=True).one()  # @UndefinedVariable
@@ -94,14 +124,19 @@ def get_session(sessionid, search_inactives=False):
 
 
 def new_session(username):
-    """Takes a username and returns a new session id."""
+    '''
+    Takes a username and returns a new session id.
+    
+    :param username:
+    '''
+    
     #First, get the userid from the username
     user = get_user(username)
     session = Session(user)
     try:
         db.session.add(session)
         db.session.commit()
-        return session.id
+        return session
     except Exception as e:
         LOG.warning(e)
         db.session.rollback()
@@ -124,11 +159,12 @@ def delete_session(sessionid):
         raise e
     
 def _is_uuid_valid(sessionid):
-    """
-    Validate that a UUID string is in
-    fact a valid uuid.
-    """
-
+    '''
+    Validate that a UUID string is in fact a valid uuid.
+    
+    :param sessionid:
+    '''
+    
     try:
         val = UUID(sessionid)
     except ValueError:

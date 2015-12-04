@@ -5,7 +5,7 @@ by the :mod:`controller`.
 '''
 
 #Flask and modules
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
 from flask.ext.api import status 
 #from flask.helpers import make_response
 
@@ -18,6 +18,7 @@ from .errors import *
 #import datetime
 #import json
 #import time
+import simplejson
 
 #Import controller
 from userprofile_app import controller
@@ -27,7 +28,7 @@ from userprofile_app import controller
 from .extensions import LOG
 
 #Userprofile blueprint
-userprofile = Blueprint('userprofile', __name__, url_prefix='/userprofile/api/v1.0')
+userprofile = Blueprint('userprofile', __name__, url_prefix='/v1')
 
 ######################################################
 # Handshake
@@ -35,32 +36,77 @@ userprofile = Blueprint('userprofile', __name__, url_prefix='/userprofile/api/v1
 
 @userprofile.route('/version')
 def get_version():
-    return jsonify({'data': [{'version':'v1.0'}] }), status.HTTP_200_OK
+    '''
+    Returns the current version of the API.
+    '''
+    return jsonify(version='v1'), status.HTTP_200_OK
 
 ######################################################
 # user management
 ######################################################
 
+@userprofile.route('/users/<userid>')
+def get_user(userid):
+    error={}
+    error["message"] = "Forbidden" 
+    error["code"] = 403
+    return jsonify(error=error), status.HTTP_403_FORBIDDEN
+    
 @userprofile.route('/users', methods = ['POST'])
 def new_user():
-    """Creates a new user with the data received from a request.    
-    """
+    '''
+    Creates a new user with the data received from a request. 
+    
+    :<json string username: 
+    :<json string password: 
+    :status 201: Successful request
+    :status 400: Not JSON object or missing parameters
+    :status 401: Wrong credentials
+    '''
     #Check if request is json and contains all the required fields
     required_fields = ["username", "password"]
+    
+    error = {}
+    
     if not request.json or not (set(required_fields).issubset(request.json)): 
-        return jsonify({'message': 'Invalid request. Please try again.'}), status.HTTP_400_BAD_REQUEST
+        error["message"] = "Invalid request." 
+        error["code"] = 400
+        return jsonify(error=error), status.HTTP_400_BAD_REQUEST
+    
     else:
+        
+        
         try:
             username = request.json["username"]
             password = request.json["password"]
-            controller.create_user(username, password)
-            return jsonify({ 'message': "User created successfully." }), status.HTTP_201_CREATED
+
+            #############################
+            # Success
+            #############################
+
+            user = controller.create_user(username, password)
+            user_response= simplejson.dumps(user.as_hateoas(), indent=2)
+            
+            response = make_response(user_response, status.HTTP_201_CREATED)
+            response.headers["X-Total-Count"] = 1
+            response.headers["Content-Type"] = "application/json"
+            
+            return response
+            
         except AuthenticationFailed:
-            return jsonify({'message': 'Could not authenticate. Check your credentials.'}), status.HTTP_401_UNAUTHORIZED 
+            error["message"] = "Could not authenticate. Check your credentials." 
+            error["code"] = 401
+            return jsonify(error=error), status.HTTP_401_UNAUTHORIZED
+        
         except UsernameExistsException:
-            return jsonify({'message': 'Username already in database.'}), status.HTTP_409_CONFLICT 
+            error["message"] = "Username already in database." 
+            error["code"] = 409
+            return jsonify(error=error), status.HTTP_409_CONFLICT
+                
         except ParseError:
-            return jsonify({'message': 'Invalid parameters.'}), status.HTTP_400_BAD_REQUEST
+            error["message"] = "Invalid parameters." 
+            error["code"] = 400
+            return jsonify(error=error), status.HTTP_400_BAD_REQUEST
         
 
 ######################################################
@@ -69,34 +115,93 @@ def new_user():
 
 @userprofile.route('/sessions', methods = ['POST'])
 def new_session():
-    """ If the credentials are valid, create a new session id and returns its id.    
-    """
+    '''
+    Creates a new gaming session. Requires authentication by providing a valid username/password.
+    
+    TODO: Switch to token authentication
+     
+    :<json string username: Username of the user who is using the session 
+    :<json string password: Password for authenticating
+    :status 201: Successful request
+    :status 400: Not JSON object or missing parameters
+    :status 401: Wrong credentials
+    '''
     #Check if request is json and contains all the required fields
     required_fields = ["username", "password"]
-    if not request.json or not (set(required_fields).issubset(request.json)): 
-        return jsonify({'message': 'Invalid request. Please try again.'}), status.HTTP_400_BAD_REQUEST
+    
+    error = {}
+    
+    if not request.json or not (set(required_fields).issubset(request.json)):
+        error["message"] = "Invalid request." 
+        error["code"] = 400
+        return jsonify(error=error), status.HTTP_400_BAD_REQUEST
+    
     else:
         try:
+            
+            #############################
+            # Success
+            #############################
+            
             username = request.json["username"]
             password = request.json["password"]
+            
             user = controller.user_authenticate(username, password)
+            
             action = "get_session"
+            
             if (controller.is_authorized(user, action)):
-                new_sessionid = controller.new_session(username)
-            return jsonify({'sessionid': new_sessionid}), status.HTTP_200_OK
+                
+                
+                gamingsession = controller.new_session(username)
+                gamingsession_response = simplejson.dumps(gamingsession.as_hateoas(), indent=2)
+                response = make_response(gamingsession_response, status.HTTP_201_CREATED)
+                response.headers["X-Total-Count"] = 1
+                response.headers["Content-Type"] = "application/json"
+                
+                return response
+                #return jsonify({'sessionid': new_sessionid}), status.HTTP_201_CREATED
+                
+            else:
+                error["message"] = "You are not authorized to perform this action." 
+                error["code"] = 401
+                return jsonify(error=error), status.HTTP_401_UNAUTHORIZED
+            
+            
+        
         except AuthenticationFailed:
-            return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
+            error["message"] = "Could not authenticate. Check your credentials." 
+            error["code"] = 401
+            return jsonify(error=error), status.HTTP_401_UNAUTHORIZED
+
 
 @userprofile.route('/sessions/<sessionid>')
-def get_sessioninfo(sessionid):
-    """TODO: Implement some kind of authentication and permission system here to 
-    restrict access to retrieving user information from a sessionid."""
+def get_session(sessionid):
+    '''
+    Get information about the sessionid.
+    
+    TODO: Implement some kind of authentication and permission system here to 
+    restrict access to retrieving user information from a sessionid.
+    
+    :param sessionid:
+    :status 200: Successful request
+    :status 400: Not JSON object or missing parameters
+    :status 401: Wrong credentials
+    :status 404: Sessionid does not exist
+    '''
+
 #     required_fields = ["sessionid"]
 #     if not request.json or not (set(required_fields).issubset(request.json)): 
 #         return jsonify({'message': 'Invalid request. Please try again.'}), status.HTTP_400_BAD_REQUEST
 #     else:
+
+    error = {}
+    
     if not controller._is_uuid_valid(sessionid):
-        return jsonify({'errors': [{'userMessage':'Invalid request. Please try again.'}]}), status.HTTP_400_BAD_REQUEST
+        error["message"] = "Invalid request." 
+        error["code"] = 400
+        return jsonify(error=error), status.HTTP_400_BAD_REQUEST
+    
     else:
         session = {}
         inactive = False
@@ -104,42 +209,79 @@ def get_sessioninfo(sessionid):
             if request.args["inactive"].lower() == "true":
                 inactive = True
         try:
-            session = controller.get_session(sessionid, inactive)   
-        except UserNotFoundException:
-            return jsonify({'errors': [{'userMessage':'User not found.'}]}), status.HTTP_404_NOT_FOUND
-        except SessionidNotFoundException:
-            return jsonify({'errors': [{'userMessage':'SessionID not found.'}]}), status.HTTP_404_NOT_FOUND
-        except AuthenticationFailed:
-            return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
             
-        return jsonify(session.as_dict()), status.HTTP_200_OK
+            #############################
+            # Success
+            #############################
+            
+            gamingsession = controller.get_session(sessionid, inactive) 
+            
+            gamingsession_response = simplejson.dumps(gamingsession.as_hateoas(), indent=2)
+            response = make_response(gamingsession_response, status.HTTP_200_OK)
+            response.headers["X-Total-Count"] = 1
+            response.headers["Content-Type"] = "application/json"
+            
+            return response
+
+             
+        except UserNotFoundException:
+            error["message"] = "User not found." 
+            error["code"] = 404
+            return jsonify(error=error), status.HTTP_404_NOT_FOUND 
+                
+        except SessionidNotFoundException:
+            error["message"] = "SessionID not found." 
+            error["code"] = 404
+            return jsonify(error=error), status.HTTP_404_NOT_FOUND 
+      
+        except AuthenticationFailed:
+            error["message"] = "Could not authenticate. Check your credentials." 
+            error["code"] = 401
+            return jsonify(error=error), status.HTTP_401_UNAUTHORIZED  
+            
+        
         
         
         
 @userprofile.route('/sessions/<sessionid>', methods = ['DELETE'])
-def delete_sessioninfo(sessionid):
-    """TODO: Implement some kind of authentication and permission system here to 
-    restrict access to deleting a sessionid."""
+def delete_session(sessionid):
+    '''
+    Marks the session as inactive.
+    
+    TODO: Implement some kind of authentication and permission system here to 
+    restrict access to deleting a sessionid.
+    
+    :param sessionid:
+    :status 204: Deleted successfully
+    :status 400: Bad parameters (badly formed sessionid)
+    :status 401: Wrong credentials
+    :status 404: Sessionid does not exist
+    '''
+    error = {}
+    
     if not controller._is_uuid_valid(sessionid):
-        return jsonify({'errors': [{'userMessage':'Invalid request. Please try again.'}]}), status.HTTP_400_BAD_REQUEST
+        error["message"] = "Invalid request." 
+        error["code"] = 400
+        return jsonify(error=error), status.HTTP_400_BAD_REQUEST
+    
     else:
         try:
-            controller.delete_session(sessionid)            
-            return jsonify({'data': [{'userMessage':'Session deleted successfully.'}]}), status.HTTP_200_OK
-        except UserNotFoundException:
-            return jsonify({'errors': [{'userMessage':'User not found.'}]}), status.HTTP_404_NOT_FOUND
-        except SessionidNotFoundException:
-            return jsonify({'errors': [{'userMessage':'SessionID not found.'}]}), status.HTTP_404_NOT_FOUND
-        except AuthenticationFailed:
-            return jsonify({'errors': [{'userMessage':'Invalid credentials.'}]}), status.HTTP_401_UNAUTHORIZED  
+            #############################
+            # Success
+            #############################
+            
+            controller.delete_session(sessionid)  
+                      
+            return "", status.HTTP_204_NO_CONTENT
         
-# @userprofile.route('/session/<sessionid>')
-# def get_sessioninfo(sessionid):
-#     try:
-#         session = controller.get_session(sessionid)
-#         return jsonify({'message':"Success.", 'result': session.as_dict()}), status.HTTP_200_OK
-#     except SessionidNotFoundException as e:
-#         return jsonify({'message': e.value, "result":""}), status.HTTP_200_OK
-#     except AuthenticationFailed:
-#         return jsonify({'message': "Invalid credentials."}), status.HTTP_401_UNAUTHORIZED  
-    
+        
+        except SessionidNotFoundException:
+            error["message"] = "SessionID not found." 
+            error["code"] = 404
+            return jsonify(error=error), status.HTTP_404_NOT_FOUND 
+        
+        except AuthenticationFailed:
+            error["message"] = "Could not authenticate. Check your credentials." 
+            error["code"] = 401
+            return jsonify(error=error), status.HTTP_401_UNAUTHORIZED   
+        
