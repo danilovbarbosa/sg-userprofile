@@ -1,9 +1,3 @@
-'''
-Created on 14 Oct 2015
-
-@author: mbrandaoca
-'''
-
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -15,7 +9,7 @@ SECRET_KEY = 'heytheredonottrytomesswithmemister3'
 
 #Other config
 SQLALCHEMY_DATABASE_URI_TEST = "mysql://userprofile:userprofile@localhost/userprofile_test"
-TMPDIR = os.path.join(basedir, 'tmp')
+TMPDIR = os.path.join(basedir, '..', 'tmp')
 LOG_FILENAME = "userprofile.log.txt"
 LOG_FILENAME_TEST = "userprofile_testing.log.txt"
 
