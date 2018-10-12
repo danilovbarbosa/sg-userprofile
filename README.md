@@ -17,7 +17,7 @@ python3 -m venv venv
 
 Clone project (branch sg-userProfileDeaf):
 
-git clone -b sg-userProfileDeaf https://github.com/danilovbarbosa/sg-gameevents.git
+git clone -b sg-userProfileDeaf https://github.com/danilovbarbosa/sg-userprofile.git
 
 Install the requirements
 
