@@ -34,6 +34,15 @@ userprofile = Blueprint('userprofile', __name__, url_prefix='/v1')
 # Handshake
 ######################################################
 
+
+@userprofile.route('/')
+@userprofile.route('/index')
+@userprofile.route('/home')
+def index():
+    return "testando 123, testando"
+
+
+
 @userprofile.route('/version')
 def get_version():
     '''

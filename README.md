@@ -22,6 +22,8 @@ git clone -b sg-userProfileDeaf https://github.com/danilovbarbosa/sg-userprofile
 Install the requirements
 
 pip install -r requirements.txt
+
+Add file './gameevents/config.py' with configuration from: SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO, WTF_CSRF_ENABLED, SECRET_KEY, SQLALCHEMY_DATABASE_URI_TEST, TMPDIR, LOG_FILENAME, LOG_FILENAME_TEST and DEFAULT_TOKEN_DURATION  
  
 Then, create the database and the migration files:
 
@@ -35,11 +37,11 @@ $ python userprofile/run.py
 
 Add at least one username to the database:
 
-$ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user", "password":"password"}' http://localhost:5002/userprofile/api/v1.0/users
+$ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user", "password":"password"}' http://localhost:5002/v1/users
 
 Request a sessionid:
 
-$ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user","password":"password"}' http://localhost:5002/userprofile/api/v1.0/sessions
+$ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user","password":"password"}' http://localhost:5002/v1/sessions
 
 See user data associated to a sessionid:
-$ curl -i http://localhost:5002/userprofile/api/v1.0/sessions/YOURSESSIONID
+$ curl -i http://localhost:5002/v1/sessions/YOURSESSIONID
