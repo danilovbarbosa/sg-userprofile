@@ -36,6 +36,7 @@ Run the server
 $ python userprofile/run.py
 
 Add at least one username to the database:
+** You can change tags: username and password.
 
 $ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user", "password":"password"}' http://localhost:5002/v1/users
 
