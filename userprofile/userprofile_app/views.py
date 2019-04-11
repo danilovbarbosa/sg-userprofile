@@ -6,11 +6,11 @@ by the :mod:`controller`.
 
 #Flask and modules
 from flask import Blueprint, jsonify, request, make_response
-from flask.ext.api import status 
+from flask_api import status 
 #from flask.helpers import make_response
 
 #Exceptions and errors
-from flask.ext.api.exceptions import AuthenticationFailed, ParseError
+from flask_api.exceptions import AuthenticationFailed, ParseError
 #from sqlalchemy.orm.exc import NoResultFound
 from .errors import *
 
