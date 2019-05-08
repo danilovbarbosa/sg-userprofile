@@ -32,7 +32,13 @@ class User(db.Model):
         self.username = username
         self.password_hash = pwd_context.encrypt(password)
         #self.token = None
-        
+
+    def __str__(self):
+        '''
+        Returns a representation of the object.username as str.
+        '''
+        return self.username
+
     def as_dict(self):
         '''
         Returns a representation of the object as dictionary.

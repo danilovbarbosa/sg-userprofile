@@ -63,6 +63,17 @@ def get_user(username):
     
     user = User.query.filter_by(username = username).one()  # @UndefinedVariable
     return user
+
+
+def get_user_with_id(id_user):
+    '''
+    Auxiliary function for the view, to retrieve a user object from a username.
+
+    :param username:
+    '''
+
+    user = User.query.filter_by(id=id_user).one()  # @UndefinedVariable
+    return user
     
             
 def user_authenticate(username, password):

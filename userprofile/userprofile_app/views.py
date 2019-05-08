@@ -56,11 +56,47 @@ def get_version():
 
 @userprofile.route('/users/<userid>')
 def get_user(userid):
-    error={}
-    error["message"] = "Forbidden" 
-    error["code"] = 403
-    return jsonify(error=error), status.HTTP_403_FORBIDDEN
-    
+    '''
+
+    TODO: Implement some kind of authentication and permission system here to
+
+    :param userid:
+    :status 200: Get user successful
+    :status 400: Bad parameters (badly formed sessionid)
+    :status 401: Wrong credentials
+    :status 404: Sessionid does not exist
+    '''
+    error = {}
+
+    if not controller._is_uuid_valid(userid):
+        error["message"] = "Invalid request."
+        error["code"] = 400
+        return jsonify(error=error), status.HTTP_400_BAD_REQUEST
+
+    else:
+        try:
+            #############################
+            # Success
+            #############################
+            message = {}
+            user = controller.get_user_with_id(userid)
+            # LOG.debug(str(user))
+            message["id"] = user.as_dict()['id']
+            message["username"] = user.as_dict()['username']
+            message["sessions"] = user.as_dict()['sessions']
+            return jsonify(message=message), status.HTTP_200_OK
+
+
+        except UserNotFoundException:
+            error["message"] = "SessionID not found."
+            error["code"] = 404
+            return jsonify(error=error), status.HTTP_404_NOT_FOUND
+
+        except AuthenticationFailed:
+            error["message"] = "Could not authenticate. Check your credentials."
+            error["code"] = 401
+            return jsonify(error=error), status.HTTP_401_UNAUTHORIZED
+
 @userprofile.route('/users', methods = ['POST'])
 def new_user():
     '''
@@ -205,7 +241,8 @@ def get_session(sessionid):
 #     else:
 
     error = {}
-    
+
+
     if not controller._is_uuid_valid(sessionid):
         error["message"] = "Invalid request." 
         error["code"] = 400
@@ -213,6 +250,7 @@ def get_session(sessionid):
     
     else:
         session = {}
+
         inactive = False
         if ("inactive" in request.args):
             if request.args["inactive"].lower() == "true":
